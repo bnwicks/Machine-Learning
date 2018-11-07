@@ -54,4 +54,54 @@ y_hat <- factor(y_hat)
 
 mean(y_hat == test_set$sex)
 
+# Confusion Matrix
+table(predicted = y_hat, actual = test_set$sex)
+
+# % Percentages
+test_set %>%
+  mutate(y_hat = y_hat) %>%
+  group_by(sex) %>%
+  summarise(accuracy = mean(y_hat == sex))
+
+# Pervalence of Males in dataset
+prev <- mean( y == "Male")
+prev
+
+# Sensitivity / Specificity
+# High sensitivity means y equals 1 implies y hat equals 1.
+# High specificity means y equals 0 implies y hat equals 0.
+
+confusionMatrix(data = y_hat, reference = test_set$sex)
+
+# Balanced accuracy is average of specificity and sensitivity
+
+# F1 Measure weights sensitivity and specificity
+cutoff <- seq(61, 70)
+F_1 <- map_dbl(cutoff, function(x){
+  y_hat <- ifelse(train_set$height > x, "Male", "Female") %>%
+    factor(levels = levels(test_set$sex))
+  F_meas(data = y_hat, reference = factor(train_set$sex))
+})
+
+plot(cutoff, F_1)
+
+# Test Cutoff Values for F1 with test data
+best_F_1_cutoff <- 66
+y_hat <- ifelse(test_set$height > best_F_1_cutoff, "Male", "Female") %>%
+  factor(levels = levels(test_set$sex))
+y_hat <- factor(y_hat)
+
+confusionMatrix(data = y_hat, reference = test_set$sex)
+
+# Sensitivity / Specificity with cutoff
+cutoffs <- c(50, seq(60, 75), 80)
+height_cutoff <- map_df(cutoffs, function(x){
+  y_hat <- ifelse(test_set$height > x, "Male", "Female") %>%
+    factor(levels = c("Female", "Male"))
+  list(method = "Height Cutoff",
+       FPR = 1 - specificity(y_hat, test_set$sex),
+       TPR = sensitivity(y_hat, test_set$sex))
+})
+
+plot(height_cutoff$FPR, height_cutoff$TPR)
 

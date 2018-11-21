@@ -76,7 +76,7 @@ y_hat <- ifelse(test$Petal.Length > cutoff_pl | test$Petal.Width > cutoff_pw, "v
 
 mean(y_hat == train$Species)
 
-# Final Explaination
+# Final Solution Explaination
 library(caret)
 data(iris)
 iris <- iris[-which(iris$Species=='setosa'),]
